@@ -26,15 +26,16 @@ class HomeScreen extends StatelessWidget {
                   lat: 42.882004,
                   lon: 74.582748,
                   id: '1',
-                  asset: 'assets/pin_red.png',
+                  asset: 'assets/animation.png',
                 ),
                 ClusterPoint(
                   lat: 42.88303,
                   lon: 74.58275,
                   id: '2',
-                  asset: 'assets/pin_red.png',
+                  asset: 'assets/animation.png',
                 ),
               ],
+              onClusterTap: (ids) => print('Cluster tapped: $ids'),
               onPointTap: (id) {
                 print('Point tapped: $id');
                 ScaffoldMessenger.of(context).showSnackBar(

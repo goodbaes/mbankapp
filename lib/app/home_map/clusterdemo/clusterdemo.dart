@@ -4,6 +4,7 @@ import 'package:mbankapp/app/home_map/clusterdemo/cluster_collection_pin_widget.
 import 'package:mbankapp/app/home_map/clusterdemo/model/cluster_point.dart';
 import 'package:mbankapp/app/home_map/common/listeners/map_object_tap_listener.dart';
 import 'package:mbankapp/app/home_map/listeners/cluster_listener.dart';
+import 'package:mbankapp/app/home_map/listeners/cluster_tap_listener.dart';
 import 'package:mbankapp/app/home_map/presentation/flutter_map_widget.dart';
 import 'package:yandex_maps_mapkit_lite/image.dart' as image_provider;
 import 'package:yandex_maps_mapkit_lite/mapkit.dart' as mk;
@@ -36,14 +37,18 @@ class _ClustersDemoState extends State<ClustersDemo> {
     );
 
     _clusters = window.map.mapObjects.addClusterizedPlacemarkCollection(
-      ClusterListenerImpl(onClusterAddedCallback: _onClusterAdded),
+      ClusterListenerImpl(onClusterAddedCallback: (c) => _onClusterAdded(c, window)),
     );
 
     for (final p in widget.points) {
-      _clusters.addPlacemark()
+      final pin = _clusters.addPlacemark()
         ..geometry = mk.Point(latitude: p.lat, longitude: p.lon)
-        ..setIcon(image_provider.ImageProvider.fromImageProvider(AssetImage(p.asset)))
         ..userData = p.id
+        ..setIcon(
+          image_provider.ImageProvider.fromImageProvider(
+            AssetImage(p.asset),
+          ),
+        )
         ..addTapListener(
           MapObjectTapListenerImpl(
             onMapObjectTapped: (placemark, _) {
@@ -52,12 +57,16 @@ class _ClustersDemoState extends State<ClustersDemo> {
             },
           ),
         );
+      // pin.useAnimation()
+      //   ..setIcon(image_provider.AnimatedImageProvider.fromAsset(p.asset),
+      //    mk.IconStyle(
+      //     scale: 1,
+      //   ))..play();
     }
-
     _clusters.clusterPlacemarks(clusterRadius: 60, minZoom: 15);
   }
 
-  void _onClusterAdded(mk.Cluster c) {
+  void _onClusterAdded(mk.Cluster c, mk.MapWindow window) {
     c.appearance
       ..setView(
         ViewProvider(
@@ -69,5 +78,24 @@ class _ClustersDemoState extends State<ClustersDemo> {
         ),
       )
       ..zIndex = 100;
+
+    c.addClusterTapListener(
+      ClusterTapListenerImpl(
+        onClusterTapCallback: (cluster) {
+          if (widget.onClusterTap == null) return false;
+          window.map.move(
+            mk.CameraPosition(
+              cluster.placemarks.first.geometry,
+              zoom: window.map.cameraPosition.zoom + 1,
+              azimuth: 0,
+              tilt: 0,
+            ),
+          );
+          final ids = cluster.placemarks.map((e) => e.userData! as String).toList();
+          widget.onClusterTap?.call(ids);
+          return true;
+        },
+      ),
+    );
   }
 }
