@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:yandex_maps_mapkit_lite/init.dart' as init;
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -10,7 +11,7 @@ abstract class MapAvailableUtil {
     final info = await DeviceInfoPlugin().androidInfo;
     isAvalible = info.version.sdkInt >= 26;
     if (isAvalible ?? false) {
-      init.initMapkit(apiKey: '99ced02f-0d4e-43a0-aae2-6c274ede3e80');
+      init.initMapkit(apiKey: dotenv.env['YANDEX_MAPS_API_KEY'] ?? '');
     }
     return isAvalible!;
   }
