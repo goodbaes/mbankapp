@@ -1,0 +1,38 @@
+import 'package:flutter/material.dart';
+import 'package:mbankapp/app/home_map/clusterdemo/clusterdemo.dart';
+import 'package:mbankapp/app/utils/map_avalible_util.dart';
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: MapAvailableUtil.isMapAvailable(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        if (snapshot.hasData && snapshot.data!) {
+          return const ClustersDemo();
+        } else if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error: ${snapshot.error}'),
+            ),
+          );
+        } else {
+          return const Scaffold(
+            body: Center(
+              child: Text('Map is not available on this device'),
+            ),
+          );
+        }
+      },
+    );
+  }
+}

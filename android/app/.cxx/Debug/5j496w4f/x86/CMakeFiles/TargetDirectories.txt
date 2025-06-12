@@ -1,0 +1,2 @@
+H:/flutter_projects/mbankapp/android/app/.cxx/Debug/5j496w4f/x86/CMakeFiles/edit_cache.dir
+H:/flutter_projects/mbankapp/android/app/.cxx/Debug/5j496w4f/x86/CMakeFiles/rebuild_cache.dir
