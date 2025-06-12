@@ -1,96 +1,73 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mbankapp/app/home_map/clusterdemo/cluster_collection_pin_widget.dart';
+import 'package:mbankapp/app/home_map/clusterdemo/model/cluster_point.dart';
+import 'package:mbankapp/app/home_map/common/listeners/map_object_tap_listener.dart';
 import 'package:mbankapp/app/home_map/listeners/cluster_listener.dart';
-import 'package:mbankapp/app/home_map/listeners/cluster_tap_listener.dart';
 import 'package:mbankapp/app/home_map/presentation/flutter_map_widget.dart';
 import 'package:yandex_maps_mapkit_lite/image.dart' as image_provider;
-import 'package:yandex_maps_mapkit_lite/mapkit.dart' as mapkit;
+import 'package:yandex_maps_mapkit_lite/mapkit.dart' as mk;
+import 'package:yandex_maps_mapkit_lite/ui_view.dart';
 
 class ClustersDemo extends StatefulWidget {
-  const ClustersDemo({super.key});
+  const ClustersDemo({required this.points, super.key, this.onClusterTap, this.onPointTap});
+  final List<ClusterPoint> points;
+  final void Function(List<String> ids)? onClusterTap;
+  final void Function(String id)? onPointTap;
   @override
   State<ClustersDemo> createState() => _ClustersDemoState();
 }
 
 class _ClustersDemoState extends State<ClustersDemo> {
-  // Настройки кластеризации
-  static const _clusterRadius = 60.0;
-  static const _clusterMinZoom = 15;
-
-  late final mapkit.ClusterizedPlacemarkCollection _clusters;
-  final _random = math.Random();
-
+  late final mk.ClusterizedPlacemarkCollection _clusters;
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: FlutterMapWidget(onMapCreated: _onMapCreated),
-    );
-  }
+  Widget build(BuildContext context) => FlutterMapWidget(onMapCreated: _onMapCreated);
 
-  void _onMapCreated(mapkit.MapWindow window) {
+  void _onMapCreated(mk.MapWindow window) {
+    window.map.mapObjects.clear();
+
     window.map.move(
-      const mapkit.CameraPosition(
-        mapkit.Point(latitude: 55.75, longitude: 37.62),
-        zoom: 10,
-        azimuth: 1,
+      const mk.CameraPosition(
+        mk.Point(latitude: 42.882004, longitude: 74.582748),
+        zoom: 15,
+        azimuth: 0,
         tilt: 0,
       ),
     );
 
-    // 1. Создаём коллекцию с поддержкой кластеризации
     _clusters = window.map.mapObjects.addClusterizedPlacemarkCollection(
-      ClusterListenerImpl(
-        onClusterAddedCallback: _onClusterAdded,
-      ),
+      ClusterListenerImpl(onClusterAddedCallback: _onClusterAdded),
     );
 
-    // 2. Добавляем плейсмарки
-    for (var i = 0; i < 200; i++) {
-      final point = mapkit.Point(
-        latitude: 55.5 + _random.nextDouble(),
-        longitude: 37.3 + _random.nextDouble(),
-      );
-
+    for (final p in widget.points) {
       _clusters.addPlacemark()
-        ..geometry = point
-        ..setIcon(
-          image_provider.ImageProvider.fromImageProvider(
-            const AssetImage('assets/pin_red.png'),
+        ..geometry = mk.Point(latitude: p.lat, longitude: p.lon)
+        ..setIcon(image_provider.ImageProvider.fromImageProvider(AssetImage(p.asset)))
+        ..userData = p.id
+        ..addTapListener(
+          MapObjectTapListenerImpl(
+            onMapObjectTapped: (placemark, _) {
+              widget.onPointTap?.call(p.id);
+              return true;
+            },
           ),
-        )
-        ..userData = i;
+        );
     }
 
-    // 3. Запускаем кластеризацию
-    _clusters.clusterPlacemarks(
-      clusterRadius: _clusterRadius,
-      minZoom: _clusterMinZoom,
-    );
+    _clusters.clusterPlacemarks(clusterRadius: 60, minZoom: 15);
   }
 
-  /* === Callbacks === */
-
-  // Вызывается при создании нового кластера
-  void _onClusterAdded(mapkit.Cluster cluster) {
-    // Настраиваем внешний вид кластера
-    cluster.appearance
-      ..setText('${cluster.size}') // выводим количество точек
+  void _onClusterAdded(mk.Cluster c) {
+    c.appearance
+      ..setView(
+        ViewProvider(
+          builder: () {
+            return ClusterCollectionPinWidget(
+              size: c.placemarks.length,
+            );
+          },
+        ),
+      )
       ..zIndex = 100;
-
-    // Регистрируем тап-обработчик
-    cluster.addClusterTapListener(
-      ClusterTapListenerImpl(
-        onClusterTapCallback: (cluster) {
-          // Обработка нажатия на кластер
-          final message = 'Кластер с ${cluster.size} точками';
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
-          return true; // Возвращаем true, чтобы предотвратить дальнейшую обработку
-        },
-      ),
-    );
   }
 }

@@ -38,3 +38,4 @@ flutter:
     - assets/pin_yellow.png
     - assets/animation.png
     - assets/ic_dollar_pin.png
+    - .env

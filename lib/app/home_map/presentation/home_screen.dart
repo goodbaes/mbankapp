@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mbankapp/app/home_map/clusterdemo/clusterdemo.dart';
+import 'package:mbankapp/app/home_map/clusterdemo/model/cluster_point.dart';
 import 'package:mbankapp/app/utils/map_avalible_util.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -18,7 +19,30 @@ class HomeScreen extends StatelessWidget {
           );
         }
         if (snapshot.hasData && snapshot.data!) {
-          return const ClustersDemo();
+          return Scaffold(
+            body: ClustersDemo(
+              points: const [
+                ClusterPoint(
+                  lat: 42.882004,
+                  lon: 74.582748,
+                  id: '1',
+                  asset: 'assets/pin_red.png',
+                ),
+                ClusterPoint(
+                  lat: 42.88303,
+                  lon: 74.58275,
+                  id: '2',
+                  asset: 'assets/pin_red.png',
+                ),
+              ],
+              onPointTap: (id) {
+                print('Point tapped: $id');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Point tapped: $id')),
+                );
+              },
+            ),
+          );
         } else if (snapshot.hasError) {
           return Scaffold(
             body: Center(
