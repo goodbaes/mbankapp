@@ -21,6 +21,39 @@ class ClustersDemo extends StatefulWidget {
 
 class _ClustersDemoState extends State<ClustersDemo> {
   late final mk.ClusterizedPlacemarkCollection _clusters;
+
+  mk.PlacemarkMapObject? _selectedPont;
+  mk.PlacemarkMapObject? previousSelectedPoint;
+
+  final List<mk.PlacemarkMapObject> allPoints = [];
+  late final _pinListener = MapObjectTapListenerImpl(
+    onMapObjectTapped: (placemark, _) {
+      if (placemark is mk.PlacemarkMapObject) {
+        if (previousSelectedPoint == placemark) {
+          return true;
+        } else {
+          if (previousSelectedPoint != null) {
+            previousSelectedPoint!.setIconStyle(
+              const mk.IconStyle(
+                scale: 1,
+                zIndex: 0,
+              ),
+            );
+          }
+        }
+        previousSelectedPoint = placemark;
+        _selectedPont = placemark;
+
+        placemark.setIconStyle(
+          const mk.IconStyle(
+            scale: 1.5,
+            zIndex: 1000,
+          ),
+        );
+      }
+      return true;
+    },
+  );
   @override
   Widget build(BuildContext context) => FlutterMapWidget(onMapCreated: _onMapCreated);
 
@@ -49,19 +82,9 @@ class _ClustersDemoState extends State<ClustersDemo> {
             AssetImage(p.asset),
           ),
         )
-        ..addTapListener(
-          MapObjectTapListenerImpl(
-            onMapObjectTapped: (placemark, _) {
-              widget.onPointTap?.call(p.id);
-              return true;
-            },
-          ),
-        );
-      // pin.useAnimation()
-      //   ..setIcon(image_provider.AnimatedImageProvider.fromAsset(p.asset),
-      //    mk.IconStyle(
-      //     scale: 1,
-      //   ))..play();
+        ..addTapListener(_pinListener);
+
+      allPoints.add(pin);
     }
     _clusters.clusterPlacemarks(clusterRadius: 60, minZoom: 15);
   }

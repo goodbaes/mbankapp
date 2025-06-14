@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mbankapp/l10n/l10n.dart';
+import 'package:mbankapp/l10n/arb/app_localizations.dart';
 
 class App extends StatelessWidget {
   const App({

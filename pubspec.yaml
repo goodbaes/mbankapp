@@ -13,10 +13,11 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.6
   flutter_dotenv: ^5.2.1
+  flutter_gen: ^5.10.0
   flutter_localizations:
     sdk: flutter
   http: ^1.2.0
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   table_calendar: ^3.0.9
   yandex_maps_mapkit_lite: ^4.16.0-beta

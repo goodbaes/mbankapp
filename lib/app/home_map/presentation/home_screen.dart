@@ -38,9 +38,6 @@ class HomeScreen extends StatelessWidget {
               onClusterTap: (ids) => print('Cluster tapped: $ids'),
               onPointTap: (id) {
                 print('Point tapped: $id');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Point tapped: $id')),
-                );
               },
             ),
           );
