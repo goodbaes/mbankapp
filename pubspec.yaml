@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.6
+  flutter_card_swiper: 
+    path: ./flutter_card_swiper
   flutter_dotenv: ^5.2.1
   flutter_gen: ^5.10.0
   flutter_localizations:
